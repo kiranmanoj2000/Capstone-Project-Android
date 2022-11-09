@@ -26,9 +26,11 @@ public final class SOSMessageAction {
         double longitude = coordinates.get("longitude");
         String address = getLocation(context, latitude, longitude);
 
-        SmsManager.getDefault().sendTextMessage(emergencyPhoneNumber, null, "HELP PLEASE. Last Location: "
-         + address + "\n Latitude: " + latitude +
-                "\n Longitude: " + longitude, null, null);
+        Toast.makeText(context,"Location: " + address,
+                Toast.LENGTH_LONG).show();
+//        SmsManager.getDefault().sendTextMessage(emergencyPhoneNumber, null, "HELP PLEASE. Last Location: "
+//         + address + "\n Latitude: " + latitude +
+//                "\n Longitude: " + longitude, null, null);
     }
 
     public static HashMap<String, Double> getCoordinates(Context context){
