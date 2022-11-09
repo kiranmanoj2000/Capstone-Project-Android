@@ -9,7 +9,10 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.dev.capstoneapp.action.SOSMessageAction;
 import com.dev.capstoneapp.service.MyNotificationListenerService;
+
+import java.io.IOException;
 
 public class BluetoothConnectionReceiver extends BroadcastReceiver {
     public static final String ACTION_START_NOTIFICATION_LISTENER =
@@ -36,6 +39,11 @@ public class BluetoothConnectionReceiver extends BroadcastReceiver {
             Log.v(TAG, "connected: " + device);
             Toast.makeText(context,"NAME CONNECTED: " + name,
                     Toast.LENGTH_SHORT).show();
+            try {
+                SOSMessageAction.sendSOS(context);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
             Toast.makeText(context,"NAME disconnected: " + name,
