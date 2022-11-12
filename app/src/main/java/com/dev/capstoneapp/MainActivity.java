@@ -7,12 +7,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 
+import com.dev.capstoneapp.action.MusicControlsAction;
 import com.dev.capstoneapp.receiver.NotificationListenerReceiver;
 
 public class MainActivity extends AppCompatActivity {
@@ -26,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         sharedPref = this.getSharedPreferences("com.dev.capstoneapp", Context.MODE_PRIVATE);
         editor = sharedPref.edit();
         editEmergencyContactNumberInput = (EditText) findViewById(R.id.editTextPhone);
