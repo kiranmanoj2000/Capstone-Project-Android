@@ -74,6 +74,7 @@ public class MyNotificationListenerService extends NotificationListenerService {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
          //sbn.getPackageName()
          Notification notification = sbn.getNotification();
+         String text = notification.extras.get(Notification.EXTRA_BIG_TEXT).toString();
 
          Toast.makeText(getApplicationContext(),"Hellooo",Toast.LENGTH_SHORT).show();
       }
