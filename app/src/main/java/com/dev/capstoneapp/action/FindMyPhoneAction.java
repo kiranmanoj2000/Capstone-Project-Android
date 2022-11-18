@@ -11,6 +11,8 @@ public class FindMyPhoneAction {
     static final ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
     static final Handler handler = new Handler();
     private Context context;
+    public boolean isPlayingTone;
+
     public FindMyPhoneAction(Context context){
         this.context = context;
     }
@@ -22,14 +24,20 @@ public class FindMyPhoneAction {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
+                isPlayingTone = true;
                 toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP,100);
                 handler.postDelayed(this,250);
             }
-        },1000);
+        },500);
     }
 
     public void stopTone(){
         handler.removeCallbacksAndMessages(null);
+        isPlayingTone = false;
+    }
+
+    public boolean isPlayingTone(){
+        return isPlayingTone;
     }
 
 }

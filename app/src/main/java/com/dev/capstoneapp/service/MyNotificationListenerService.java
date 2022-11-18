@@ -20,8 +20,19 @@ import androidx.core.app.NotificationCompat;
 import com.dev.capstoneapp.R;
 import com.dev.capstoneapp.receiver.NotificationListenerReceiver;
 
+import org.tensorflow.lite.support.label.Category;
+import org.tensorflow.lite.task.core.BaseOptions;
+import org.tensorflow.lite.task.text.nlclassifier.BertNLClassifier;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 public class MyNotificationListenerService extends NotificationListenerService {
    private int status = 0;
+   public static final String NOTIFY_ACTION = "com.dev.capstoneapp.service.NOTIFY_ACTION";
+   private BertNLClassifier.BertNLClassifierOptions options;
+   private BertNLClassifier classifier;
 
    @Override
    public int onStartCommand(Intent intent, int flags, int startId) {
@@ -31,6 +42,16 @@ public class MyNotificationListenerService extends NotificationListenerService {
          stopSelf();
          status = 0;
       } else {
+         options = BertNLClassifier.BertNLClassifierOptions.builder()
+                 .setBaseOptions(BaseOptions.builder().setNumThreads(4).build())
+                 .build();
+         try {
+            classifier =
+                    BertNLClassifier.createFromFileAndOptions(this, "model.tflite", options);
+         } catch (IOException e) {
+            e.printStackTrace();
+         }
+
          status = 1;
          startForeground(2, buildNotification());
       }
@@ -60,7 +81,7 @@ public class MyNotificationListenerService extends NotificationListenerService {
       NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
       Notification notification = notificationBuilder.setOngoing(true)
               .setSmallIcon(R.drawable.ic_launcher_background)
-              .setContentTitle("App is running in background")
+              .setContentTitle("Intelligent notification listening enabled")
               .setPriority(NotificationManager.IMPORTANCE_MIN)
               .setCategory(Notification.CATEGORY_SERVICE)
               .build();
@@ -74,17 +95,13 @@ public class MyNotificationListenerService extends NotificationListenerService {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
          //sbn.getPackageName()
          Notification notification = sbn.getNotification();
-         String text = notification.extras.get(Notification.EXTRA_BIG_TEXT).toString();
-
-         Toast.makeText(getApplicationContext(),"Hellooo",Toast.LENGTH_SHORT).show();
+         String text = notification.extras.get(Notification.EXTRA_TEXT).toString();
+         List<Category> results = classifier.classify(text);
+         // if over 50% likely its urgent
+         if(results.get(1).getScore() > 0.5){
+            this.getApplicationContext().sendBroadcast(new Intent().setAction(NOTIFY_ACTION));
+         }
       }
-   }
-
-   @Override
-   public void onNotificationRemoved(StatusBarNotification sbn) {
-      if(status == 0)
-         return;
-      Toast.makeText(getApplicationContext(),"swiped",Toast.LENGTH_SHORT).show();
    }
 
    @Override

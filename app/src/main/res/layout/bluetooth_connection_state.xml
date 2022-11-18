@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20px"
+        android:stretchColumns="1">
+
+        <TextView
+            android:layout_column="1"
+            android:fontFamily="sans-serif-black"
+            android:padding="10dip"
+            android:text="Connect your device"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textSize="24sp" />
+        <TableRow>
+
+
+            <TextView
+                android:id="@+id/statusTextView"
+                android:layout_width="248dp"
+                android:layout_column="0"
+                android:gravity="left"
+                android:padding="10dip"
+                android:text="Status:"
+                android:textSize="16sp"
+                android:textStyle="italic" />
+            <RelativeLayout
+                android:id="@+id/loadingPanel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center" >
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_column="1"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true" />
+            </RelativeLayout>
+
+            <Button
+                android:id="@+id/connectButton"
+                android:layout_column="1"
+                android:layout_gravity="left"
+                android:padding="10dip"
+                android:minWidth="2dp"
+                android:onClick="onClickConnect"
+                android:text="Connect" />
+
+
+        </TableRow>
+
+
+    </TableLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

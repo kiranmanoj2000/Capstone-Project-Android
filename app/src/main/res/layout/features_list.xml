@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20px"
+        android:background="#303030"
+        android:stretchColumns="1">
+
+        <TableRow>
+
+            <TextView
+                android:layout_column="1"
+                android:fontFamily="sans-serif-black"
+                android:padding="10dip"
+                android:text="Features"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textSize="48sp" />
+
+        </TableRow>
+        <TableRow>
+
+            <TextView
+                android:layout_width="257dp"
+                android:layout_column="1"
+                android:padding="10dip"
+                android:text="SOS Emergency Broadcast"
+                android:textSize="24sp" />
+
+            <TextView
+                android:gravity="left"
+                android:padding="10dip"
+                android:text="Long press"
+                android:textSize="16sp"
+                android:textStyle="italic" />
+        </TableRow>
+
+        <TableRow>
+
+            <EditText
+                android:layout_width="257dp"
+                android:layout_column="1"
+                android:padding="10dip"
+                android:id="@+id/editTextPhone"
+                android:layout_height="52dp"
+                android:ems="10"
+                android:hint="Emergency Contact Number"
+                android:inputType="phone"
+                android:layout_marginLeft="25px"
+                android:layout_marginBottom="50px"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/include" />
+
+        </TableRow>
+
+        <View
+            android:layout_height="2dip"
+            android:background="#FF909090" />
+        <TableRow>
+            <TextView
+                android:layout_width="257dp"
+                android:layout_column="1"
+                android:padding="10dip"
+                android:text="Play/Pause Music"
+                android:textSize="24sp" />
+
+            <TextView
+                android:gravity="left"
+                android:padding="10dip"
+                android:text="Single tap"
+                android:textSize="16sp"
+                android:textStyle="italic" />
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:layout_width="257dp"
+                android:layout_column="1"
+                android:padding="10dip"
+                android:text="Play Next Track"
+                android:textSize="24sp" />
+            <TextView
+                android:gravity="left"
+                android:padding="10dip"
+                android:text="Double tap"
+                android:textSize="16sp"
+                android:textStyle="italic" />
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:layout_width="257dp"
+                android:layout_column="1"
+                android:padding="10dip"
+                android:text="Play Previous Track"
+                android:textSize="24sp" />
+            <TextView
+                android:gravity="left"
+                android:padding="10dip"
+                android:text="Swipe down"
+                android:textSize="16sp"
+                android:textStyle="italic" />
+        </TableRow>
+
+        <View
+            android:layout_height="2dip"
+            android:background="#FF909090" />
+
+        <TableRow>
+            <TextView
+                android:layout_width="257dp"
+                android:layout_column="1"
+                android:padding="10dip"
+                android:text="Find My Phone"
+                android:textSize="24sp" />
+            <TextView
+                android:gravity="left"
+                android:padding="10dip"
+                android:text="Triple Tap"
+                android:textSize="16sp"
+                android:textStyle="italic" />
+        </TableRow>
+    </TableLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
