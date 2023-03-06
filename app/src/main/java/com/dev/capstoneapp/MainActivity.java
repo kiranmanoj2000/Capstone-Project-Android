@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
@@ -28,24 +27,27 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.dev.capstoneapp.action.FindMyPhoneAction;
 import com.dev.capstoneapp.action.MusicControlsAction;
-import com.dev.capstoneapp.receiver.NotificationListenerReceiver;
+import com.dev.capstoneapp.action.SOSMessageAction;
 import com.dev.capstoneapp.service.BluetoothLeService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static String UPDATE_THRESHOLD_VAL_ACTION = "UPDATE_THRESHOLD_VAL_ACTION";
     private EditText editEmergencyContactNumberInput;
     private TextView statusTextView;
 
+    private EditText thresholdValueBox;
 
     private SharedPreferences sharedPref;
     private String emergencyContactNumber;
+    private int userThreshVal;
+
     private SharedPreferences.Editor editor;
 
     private BluetoothLeScanner bluetoothLeScanner;
@@ -59,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeService bluetoothService;
     private Context context;
-    private final String ARDUINO_ADDRESS = "58:7A:62:4F:5D:45";
+    public static final String RING_ADDRESS = "02:80:E1:00:00:A2";
     private String connectionStatus = "Status: Scanning";
 
     private Button connectButton;
@@ -80,8 +82,8 @@ public class MainActivity extends AppCompatActivity {
             }
             else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 // Show all the supported services and characteristics on the user interface.
-                List<BluetoothGattService> services = bluetoothService.getSupportedGattServices();
-                BluetoothGattService n = services.get(0);
+//                List<BluetoothGattService> services = bluetoothService.getSupportedGattServices();
+//                BluetoothGattService n = services.get(0);
             }
         }
     };
@@ -101,8 +103,17 @@ public class MainActivity extends AppCompatActivity {
 
         registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
 
+        /*try {
+            new SOSMessageAction(this.getApplicationContext());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+
         statusTextView = (TextView)findViewById(R.id.statusTextView);
         statusTextView.setText(connectionStatus);
+        thresholdValueBox = (EditText)findViewById(R.id.thresholdValueBox);
+
+
 
         connectButton = (Button) findViewById(R.id.connectButton);
 
@@ -112,6 +123,11 @@ public class MainActivity extends AppCompatActivity {
         emergencyContactNumber = sharedPref.getString("emergencyContactNumber", "");
         if(!emergencyContactNumber.equals("")){
             editEmergencyContactNumberInput.setText(emergencyContactNumber);
+        }
+
+        userThreshVal = sharedPref.getInt("userThreshVal", -1);
+        if(userThreshVal != -1){
+            thresholdValueBox.setText(String.valueOf(userThreshVal));
         }
 
         editEmergencyContactNumberInput.addTextChangedListener(new TextWatcher() {
@@ -129,6 +145,32 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable editable) {
                 editor.putString("emergencyContactNumber", editEmergencyContactNumberInput.getText().toString());
                 editor.apply();
+            }
+        });
+
+        thresholdValueBox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(!thresholdValueBox.getText().toString().equals("")){
+                    int val = Integer.parseInt(thresholdValueBox.getText().toString());
+                    editor.putInt("userThreshVal", val);
+                    editor.apply();
+                    Intent intent = new Intent();
+                    intent.setAction(MainActivity.UPDATE_THRESHOLD_VAL_ACTION);
+                    intent.putExtra("val", val);
+                    sendBroadcast(intent);
+                }
+
             }
         });
         // TODO implement permisionns request
@@ -151,9 +193,9 @@ public class MainActivity extends AppCompatActivity {
         scanLeDevice();
 
         // REMOVE LATER
-        Intent in = new Intent(NotificationListenerReceiver.ACTION_START_NOTIFICATION_LISTENER);
-        in.setComponent(new ComponentName(getApplicationContext(), NotificationListenerReceiver.class));
-        sendBroadcast(in);
+//        Intent in = new Intent(NotificationListenerReceiver.ACTION_START_NOTIFICATION_LISTENER);
+//        in.setComponent(new ComponentName(getApplicationContext(), NotificationListenerReceiver.class));
+//        sendBroadcast(in);
 
     }
 
@@ -186,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onScanResult(int callbackType, ScanResult result) {
                     super.onScanResult(callbackType, result);
-                    if(result.getDevice().getAddress().equals(ARDUINO_ADDRESS)){
+                    if(result.getDevice().getAddress().equals(RING_ADDRESS)){
                         // enable the connect button
                         statusTextView.setText("Status: Device found");
                         removeLoadingIcon();
@@ -195,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
                         scanning = false;
                     }
                 }
-            };
+    };
 
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -208,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
                     finish();
                 }
                 // perform device connection
-                bluetoothService.connect(ARDUINO_ADDRESS, context);
+                bluetoothService.connect(RING_ADDRESS, context);
             }
         }
 

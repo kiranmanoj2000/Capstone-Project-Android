@@ -47,7 +47,7 @@ public class MyNotificationListenerService extends NotificationListenerService {
                  .build();
          try {
             classifier =
-                    BertNLClassifier.createFromFileAndOptions(this, "model.tflite", options);
+                    BertNLClassifier.createFromFileAndOptions(this, "mbert_t800_fydp.tflite", options);
          } catch (IOException e) {
             e.printStackTrace();
          }
@@ -95,12 +95,15 @@ public class MyNotificationListenerService extends NotificationListenerService {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
          //sbn.getPackageName()
          Notification notification = sbn.getNotification();
-         String text = notification.extras.get(Notification.EXTRA_TEXT).toString();
-         List<Category> results = classifier.classify(text);
-         // if over 50% likely its urgent
-         if(results.get(1).getScore() > 0.5){
-            this.getApplicationContext().sendBroadcast(new Intent().setAction(NOTIFY_ACTION));
+         if(notification.extras.get(Notification.EXTRA_TEXT) != null){
+            String text = notification.extras.get(Notification.EXTRA_TEXT).toString();
+            List<Category> results = classifier.classify(text);
+            // if over 50% likely its urgent
+            if(results.get(1).getScore() > 0.5){
+               this.getApplicationContext().sendBroadcast(new Intent().setAction(NOTIFY_ACTION));
+            }
          }
+
       }
    }
 

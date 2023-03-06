@@ -40,14 +40,21 @@ public class SOSMessageAction implements LocationListener {
         this.context = context;
         locationManager = (LocationManager)  this.context.getSystemService(Context.LOCATION_SERVICE);
         @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if (location != null) {
-            sendLocationToEmergencyContact(location);
-        }
-        else{
-            //This is what you need:
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this, Looper.getMainLooper());
-        }
+        SmsManager.getDefault().sendTextMessage(getEmergencyContactNumber(), null, "HELP PLEASE. Last Location: "
+                + "200 University Ave W, Waterloo, ON N2L 3G1" + "\n Latitude: " + "43.472258" +
+                "\n Longitude: " + "-80.545287", null, null);
+        notifyUser();
+
+
+//        if (location != null) {
+//            sendLocationToEmergencyContact(location);
+//        }
+//        else{
+//            //This is what you need:
+//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this, Looper.getMainLooper());
+//        }
     }
+
     @Override
     public void onLocationChanged(@NonNull Location location) {
         //remove location callback:

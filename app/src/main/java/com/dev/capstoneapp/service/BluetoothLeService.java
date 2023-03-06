@@ -31,6 +31,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import com.dev.capstoneapp.MainActivity;
 import com.dev.capstoneapp.R;
 import com.dev.capstoneapp.action.FindMyPhoneAction;
 import com.dev.capstoneapp.action.MusicControlsAction;
@@ -38,25 +39,34 @@ import com.dev.capstoneapp.action.SOSMessageAction;
 import com.dev.capstoneapp.receiver.NotificationListenerReceiver;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class BluetoothLeService extends Service {
 
-   private static final UUID CLIENT_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+//   private static final UUID CLIENT_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+//
+//   public static final UUID SERIAL_SERVICE_UUID = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
+//   public static final UUID SERIAL_RX_SERVICE_UUID = UUID.fromString("00001801-0000-1000-8000-00805f9b34fb");
+//
+//
+//   public static final UUID RX_CHAR_UUID = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
+//   public static final UUID TX_CHAR_UUID = UUID.fromString("00002a05-0000-1000-8000-00805f9b34fb");
 
-   public static final UUID SERIAL_SERVICE_UUID = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
-   public static final UUID SERIAL_RX_SERVICE_UUID = UUID.fromString("00001801-0000-1000-8000-00805f9b34fb");
+   private static final UUID DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+   private static final UUID NOTIFY_UUID = UUID.fromString("d973f2e1-b19e-11e2-9e96-0800200c9a66");
+
+   public static final UUID SERIAL_SERVICE_UUID = UUID.fromString("d973f2e0-b19e-11e2-9e96-0800200c9a66");
+//   public static final UUID SERIAL_RX_SERVICE_UUID = UUID.fromString("00001801-0000-1000-8000-00805f9b34fb");
 
 
-   public static final UUID RX_CHAR_UUID = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
-   public static final UUID TX_CHAR_UUID = UUID.fromString("00002a05-0000-1000-8000-00805f9b34fb");
+   public static final UUID RX_CHAR_UUID = UUID.fromString("d973f2e2-b19e-11e2-9e96-0800200c9a66");
+//   public static final UUID TX_CHAR_UUID = UUID.fromString("00002a05-0000-1000-8000-00805f9b34fb");
 
-   private static final String SINGLE_TAP = "SingleTap";
-   private static final String DOUBLE_TAP = "DoubleTap";
-   private static final String TRIPLE_TAP = "TripleTap";
-   private static final String LONG_PRESS = "LongPress";
+   private static final String SINGLE_TAP = "tapleft";
+   private static final String DOUBLE_TAP = "doubleleft";
+   private static final String TRIPLE_TAP = "trplleft";
+   private static final String LONG_PRESS = "longleft";
 
 
    private Binder binder = new LocalBinder();
@@ -79,8 +89,8 @@ public class BluetoothLeService extends Service {
    private MusicControlsAction musicControlsAction;
 
    private BroadcastReceiver notificationNotifyReceiver;
-
-
+   private Handler handler;
+   private boolean started = false;
 
    @Nullable
    @Override
@@ -94,11 +104,15 @@ public class BluetoothLeService extends Service {
       super.onStartCommand(intent, flags, startId);
       String action = intent.getAction();
 
-
+      handler = new Handler();
       if(action != null && action.equals(ACTION_STOP_FOREGROUND_SERVICE)){
-         bluetoothGatt.close();
-         bluetoothGatt = null;
+         if (bluetoothGatt != null){
+            bluetoothGatt.disconnect();
+            //bluetoothGatt.close();
+            bluetoothGatt = null;
+         }
          stopNotificationListener();
+         BluetoothLeService.this.getApplicationContext().sendBroadcast(new Intent().setAction(ACTION_GATT_DISCONNECTED));
          stopForeground(true);
          stopSelfResult(startId);
          return START_NOT_STICKY;
@@ -111,13 +125,28 @@ public class BluetoothLeService extends Service {
 
       final IntentFilter theFilter = new IntentFilter();
       theFilter.addAction(MyNotificationListenerService.NOTIFY_ACTION);
+      theFilter.addAction(MainActivity.UPDATE_THRESHOLD_VAL_ACTION);
       this.notificationNotifyReceiver = new BroadcastReceiver() {
 
          @Override
          public void onReceive(Context context, Intent intent) {
-            send("T");
+            if(intent.getAction().equals(MyNotificationListenerService.NOTIFY_ACTION)){
+               send("LED");
+               handler.postDelayed(new Runnable() {
+                  @Override
+                  public void run() {
+                     started = true;
+                     send("LED");
+                  }
+               },5000);
+            } else{
+               int val = intent.getIntExtra("val", 1);
+               send(Integer.toString(val));
+            }
+
          }
       };
+
       this.registerReceiver(this.notificationNotifyReceiver, theFilter);
 
       startForeground(START_STICKY, buildNotification());
@@ -131,6 +160,7 @@ public class BluetoothLeService extends Service {
       if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
          chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
       }
+
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
          chan.setLightColor(Color.BLUE);
       }
@@ -206,7 +236,7 @@ public class BluetoothLeService extends Service {
       public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
          if (newState == BluetoothProfile.STATE_CONNECTED) {
             // successfully connected to the GATT Server
-            toast("Successfully connected to BLE device");
+            //toast("Successfully connected to BLE device");
             BluetoothLeService.this.getApplicationContext().sendBroadcast(new Intent().setAction(ACTION_GATT_CONNECTED));
             // Attempts to discover services after successful connection.
             bluetoothGatt.discoverServices();
@@ -214,17 +244,23 @@ public class BluetoothLeService extends Service {
             // disconnected from the GATT Server
             BluetoothLeService.this.getApplicationContext().sendBroadcast(new Intent().setAction(ACTION_GATT_DISCONNECTED));
 
-            toast("Disconnected from BLE device");
+            //toast("Disconnected from BLE device");
 
          }
       }
 
 
+      @SuppressLint("MissingPermission")
       @Override
       public void onServicesDiscovered(BluetoothGatt gatt, int status) {
          if (status == BluetoothGatt.GATT_SUCCESS) {
             BluetoothLeService.this.getApplicationContext().sendBroadcast(new Intent().setAction(ACTION_GATT_SERVICES_DISCOVERED));
             //toast("Services discovered");
+
+            BluetoothGattService serialService = bluetoothGatt.getService(SERIAL_SERVICE_UUID);
+            BluetoothGattCharacteristic notify = serialService.getCharacteristic(NOTIFY_UUID);
+            setCharacteristicNotification(notify, true);
+            startNotificationListener();
          } else {
             Log.w(TAG, "onServicesDiscovered received: " + status);
          }
@@ -253,7 +289,7 @@ public class BluetoothLeService extends Service {
               BluetoothGatt gatt,
               BluetoothGattCharacteristic characteristic
       ) {
-         String action = characteristic.getStringValue(0).replace("\n", "");
+         String action = characteristic.getStringValue(0).replace("\n", "").replace("\r", "").replace("\0", "");
          try {
             actionHandler(action);
          } catch (IOException e) {
@@ -275,6 +311,7 @@ public class BluetoothLeService extends Service {
    @Override
    public void onDestroy() {
       super.onDestroy();
+      unregisterReceiver(this.notificationNotifyReceiver);
       close();
    }
 
@@ -299,22 +336,21 @@ public class BluetoothLeService extends Service {
       }
       bluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
-      BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_UUID);
+
+      BluetoothGattDescriptor descriptor = characteristic.getDescriptor(DESCRIPTOR_UUID);
       descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
       bluetoothGatt.writeDescriptor(descriptor);
+
       return;
    }
 
-   public List<BluetoothGattService> getSupportedGattServices () {
-      if (bluetoothGatt == null) return null;
-      List<BluetoothGattService> services = bluetoothGatt.getServices();
-      BluetoothGattService serialService = bluetoothGatt.getService(SERIAL_SERVICE_UUID);
-      BluetoothGattCharacteristic rxChar = serialService.getCharacteristic(RX_CHAR_UUID);
-
-      setCharacteristicNotification(rxChar, true);
-      startNotificationListener();
-      return services;
-   }
+//   public List<BluetoothGattService> getSupportedGattServices () {
+//      if (bluetoothGatt == null) return null;
+//      List<BluetoothGattService> services = bluetoothGatt.getServices();
+//
+//      startNotificationListener();
+//      return services;
+//   }
 
    public void startNotificationListener(){
       Intent in = new Intent(NotificationListenerReceiver.ACTION_START_NOTIFICATION_LISTENER);
@@ -346,6 +382,7 @@ public class BluetoothLeService extends Service {
       }
    }
 
+
    @SuppressLint("MissingPermission")
    public void send(byte[] data) {
       BluetoothGattService serialService = bluetoothGatt.getService(SERIAL_SERVICE_UUID);
@@ -356,6 +393,10 @@ public class BluetoothLeService extends Service {
    }
 
    public void actionHandler(String action) throws IOException {
+      if(action.equals("")){
+         return;
+      }
+
       switch (action){
          case LONG_PRESS:
             new SOSMessageAction(BluetoothLeService.this.getApplicationContext());
@@ -364,7 +405,18 @@ public class BluetoothLeService extends Service {
             musicControlsAction.togglePause();
             break;
          case DOUBLE_TAP:
-            musicControlsAction.playNext();
+            if (findMyPhoneAction.isPlayingTone()){
+               findMyPhoneAction.stopTone();
+            } else {
+               findMyPhoneAction.startTone();
+               new Handler().postDelayed(new Runnable() {
+                  @Override
+                  public void run() {
+                     findMyPhoneAction.stopTone();
+                  }
+               }, 10000);
+            }
+            //musicControlsAction.playNext();
             break;
          case TRIPLE_TAP:
             if (findMyPhoneAction.isPlayingTone()){

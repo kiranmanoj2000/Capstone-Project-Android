@@ -48,6 +48,7 @@
                 android:layout_gravity="left"
                 android:padding="10dip"
                 android:minWidth="2dp"
+                android:enabled="false"
                 android:onClick="onClickConnect"
                 android:text="Connect" />
 
