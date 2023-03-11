@@ -19,6 +19,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -103,12 +104,6 @@ public class MainActivity extends AppCompatActivity {
 
         registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
 
-        /*try {
-            new SOSMessageAction(this.getApplicationContext());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-
         statusTextView = (TextView)findViewById(R.id.statusTextView);
         statusTextView.setText(connectionStatus);
         thresholdValueBox = (EditText)findViewById(R.id.thresholdValueBox);
@@ -165,10 +160,10 @@ public class MainActivity extends AppCompatActivity {
                     int val = Integer.parseInt(thresholdValueBox.getText().toString());
                     editor.putInt("userThreshVal", val);
                     editor.apply();
-                    Intent intent = new Intent();
-                    intent.setAction(MainActivity.UPDATE_THRESHOLD_VAL_ACTION);
-                    intent.putExtra("val", val);
-                    sendBroadcast(intent);
+//                    Intent intent = new Intent();
+//                    intent.setAction(MainActivity.UPDATE_THRESHOLD_VAL_ACTION);
+//                    intent.putExtra("val", val);
+//                    sendBroadcast(intent);
                 }
 
             }

@@ -125,12 +125,12 @@ public class BluetoothLeService extends Service {
 
       final IntentFilter theFilter = new IntentFilter();
       theFilter.addAction(MyNotificationListenerService.NOTIFY_ACTION);
-      theFilter.addAction(MainActivity.UPDATE_THRESHOLD_VAL_ACTION);
+      //theFilter.addAction(MainActivity.UPDATE_THRESHOLD_VAL_ACTION);
       this.notificationNotifyReceiver = new BroadcastReceiver() {
 
          @Override
          public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(MyNotificationListenerService.NOTIFY_ACTION)){
+            //if(intent.getAction().equals(MyNotificationListenerService.NOTIFY_ACTION)){
                send("LED");
                handler.postDelayed(new Runnable() {
                   @Override
@@ -139,10 +139,12 @@ public class BluetoothLeService extends Service {
                      send("LED");
                   }
                },5000);
-            } else{
-               int val = intent.getIntExtra("val", 1);
-               send(Integer.toString(val));
-            }
+            //}
+
+//            else{
+//               int val = intent.getIntExtra("val", 1);
+//               send(Integer.toString(val));
+//            }
 
          }
       };
@@ -409,12 +411,14 @@ public class BluetoothLeService extends Service {
                findMyPhoneAction.stopTone();
             } else {
                findMyPhoneAction.startTone();
-               new Handler().postDelayed(new Runnable() {
+               new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                   @Override
                   public void run() {
-                     findMyPhoneAction.stopTone();
+                     if (findMyPhoneAction.isPlayingTone()){
+                        findMyPhoneAction.stopTone();
+                     }
                   }
-               }, 10000);
+               }, 6000);
             }
             //musicControlsAction.playNext();
             break;
