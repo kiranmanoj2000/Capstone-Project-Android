@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -25,8 +26,11 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.dev.capstoneapp.action.FindMyPhoneAction;
@@ -44,6 +48,12 @@ public class MainActivity extends AppCompatActivity {
     private TextView statusTextView;
 
     private EditText thresholdValueBox;
+
+    private Spinner sosSpinner;
+    private Spinner toggleMusicSpinner;
+    private Spinner playNextSpinner;
+    private Spinner playPrevSpinner;
+    private Spinner findMySpinner;
 
     private SharedPreferences sharedPref;
     private String emergencyContactNumber;
@@ -66,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
     private String connectionStatus = "Status: Scanning";
 
     private Button connectButton;
+    private boolean isEditing = false;
+    private TableLayout table;
 
     private BroadcastReceiver gattUpdateReceiver = new BroadcastReceiver() {
         @Override
@@ -108,6 +120,15 @@ public class MainActivity extends AppCompatActivity {
         statusTextView.setText(connectionStatus);
         thresholdValueBox = (EditText)findViewById(R.id.thresholdValueBox);
 
+        View featureList = findViewById(R.id.featureList);
+        sosSpinner = (Spinner) featureList.findViewById(R.id.sos_spinner);
+        toggleMusicSpinner = (Spinner) featureList.findViewById(R.id.toggle_music_spinner);
+        playNextSpinner = (Spinner) featureList.findViewById(R.id.play_next_spinner);
+        playPrevSpinner = (Spinner) featureList.findViewById(R.id.play_prev_spinner);
+        findMySpinner = (Spinner) featureList.findViewById(R.id.find_phone_spinner);
+        setDropDownStatus(false);
+
+        table = (TableLayout) featureList.findViewById(R.id.tableLayout);
 
 
         connectButton = (Button) findViewById(R.id.connectButton);
@@ -215,7 +236,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //private LeDeviceListAdapter leDeviceListAdapter = new LeDeviceListAdapter();
 
     // Device scan callback.
     private final ScanCallback leScanCallback = new ScanCallback() {
@@ -271,6 +291,35 @@ public class MainActivity extends AppCompatActivity {
         statusTextView.setText("Status: Connecting...");
         showLoadingIcon();
         connectButton.setEnabled(false);
+    }
+
+    public void onToggleEdit(View view){
+        if(isEditing){
+            setDropDownStatus(false);
+            table.setBackgroundColor(Color.parseColor("#303030"));
+        }else{
+            table.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce_interpolator));
+            table.setBackgroundColor(getResources().getColor(R.color.purple_700));
+            setDropDownStatus(true);
+        }
+        isEditing = !isEditing;
+    }
+
+    public void setDropDownStatus(boolean isEnabled){
+        sosSpinner.setEnabled(isEnabled);
+        sosSpinner.setClickable(isEnabled);
+
+        toggleMusicSpinner.setEnabled(isEnabled);
+        toggleMusicSpinner.setClickable(isEnabled);
+
+        playNextSpinner.setEnabled(isEnabled);
+        playNextSpinner.setClickable(isEnabled);
+
+        playPrevSpinner.setEnabled(isEnabled);
+        playPrevSpinner.setClickable(isEnabled);
+
+        findMySpinner.setEnabled(isEnabled);
+        findMySpinner.setClickable(isEnabled);
     }
 
     public void removeLoadingIcon(){

@@ -16,11 +16,11 @@
         tools:layout_editor_absoluteX="0dp" />
 
     <include
-        android:id="@+id/include"
+        android:id="@+id/featureList"
         layout="@layout/features_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="152dp"
+        android:layout_marginBottom="108dp"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_editor_absoluteX="0dp" />
 
@@ -29,7 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="4dp"
-        android:layout_marginBottom="64dp"
+        android:layout_marginBottom="60dp"
         android:ems="10"
         android:inputType="number"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -40,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="72dp"
+        android:layout_marginBottom="64dp"
         android:text="Touch threshold"
         android:textSize="20sp"
         android:textStyle="bold"

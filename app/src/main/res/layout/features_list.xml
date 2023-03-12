@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TableLayout
+        android:id="@+id/tableLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="20px"
         android:background="#303030"
-        android:stretchColumns="1">
+        android:stretchColumns="1"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="8dp">
 
         <TableRow>
 
@@ -21,7 +25,18 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:textSize="48sp" />
 
+            <ImageButton
+                android:id="@+id/imageButton"
+                android:layout_width="50dp"
+                android:layout_height="49dp"
+                android:layout_marginTop="20dp"
+                android:maxWidth="50dp"
+                android:onClick="onToggleEdit"
+                app:srcCompat="@android:drawable/ic_menu_edit" />
+
+
         </TableRow>
+
         <TableRow>
 
             <TextView
@@ -31,27 +46,29 @@
                 android:text="SOS Emergency Broadcast"
                 android:textSize="24sp" />
 
-            <TextView
-                android:gravity="left"
-                android:padding="10dip"
-                android:text="Long press"
-                android:textSize="16sp"
-                android:textStyle="italic" />
+            <Spinner
+                android:id="@+id/sos_spinner"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="15dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </TableRow>
 
         <TableRow>
 
             <EditText
-                android:layout_width="257dp"
-                android:layout_column="1"
-                android:padding="10dip"
                 android:id="@+id/editTextPhone"
+                android:layout_width="257dp"
                 android:layout_height="52dp"
+                android:layout_column="1"
+                android:layout_marginLeft="25px"
+                android:layout_marginBottom="50px"
                 android:ems="10"
                 android:hint="Emergency Contact Number"
                 android:inputType="phone"
-                android:layout_marginLeft="25px"
-                android:layout_marginBottom="50px"
+                android:padding="10dip"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/include" />
@@ -61,7 +78,9 @@
         <View
             android:layout_height="2dip"
             android:background="#FF909090" />
+
         <TableRow>
+
             <TextView
                 android:layout_width="257dp"
                 android:layout_column="1"
@@ -69,42 +88,54 @@
                 android:text="Play/Pause Music"
                 android:textSize="24sp" />
 
-            <TextView
-                android:gravity="left"
-                android:padding="10dip"
-                android:text="Single tap"
-                android:textSize="16sp"
-                android:textStyle="italic" />
+            <Spinner
+                android:id="@+id/toggle_music_spinner"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="15dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+
+                />
         </TableRow>
 
         <TableRow>
+
             <TextView
                 android:layout_width="257dp"
                 android:layout_column="1"
                 android:padding="10dip"
                 android:text="Play Next Track"
                 android:textSize="24sp" />
-            <TextView
-                android:gravity="left"
-                android:padding="10dip"
-                android:text="Double tap"
-                android:textSize="16sp"
-                android:textStyle="italic" />
+
+            <Spinner
+                android:id="@+id/play_next_spinner"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="15dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </TableRow>
 
         <TableRow>
+
             <TextView
                 android:layout_width="257dp"
                 android:layout_column="1"
                 android:padding="10dip"
                 android:text="Play Previous Track"
                 android:textSize="24sp" />
-            <TextView
-                android:gravity="left"
-                android:padding="10dip"
-                android:text="Swipe down"
-                android:textSize="16sp"
-                android:textStyle="italic" />
+
+            <Spinner
+                android:id="@+id/play_prev_spinner"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="15dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </TableRow>
 
         <View
@@ -112,18 +143,22 @@
             android:background="#FF909090" />
 
         <TableRow>
+
             <TextView
                 android:layout_width="257dp"
                 android:layout_column="1"
                 android:padding="10dip"
                 android:text="Find My Phone"
                 android:textSize="24sp" />
-            <TextView
-                android:gravity="left"
-                android:padding="10dip"
-                android:text="Triple Tap"
-                android:textSize="16sp"
-                android:textStyle="italic" />
+
+            <Spinner
+                android:id="@+id/find_phone_spinner"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="15dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </TableRow>
     </TableLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
