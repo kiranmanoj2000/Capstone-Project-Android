@@ -26,10 +26,13 @@
                 android:textSize="48sp" />
 
             <ImageButton
+                android:layout_column="2"
                 android:id="@+id/imageButton"
-                android:layout_width="50dp"
+                android:layout_width="10dp"
+                android:padding="1dp"
                 android:layout_height="49dp"
                 android:layout_marginTop="20dp"
+                android:layout_marginRight="20dp"
                 android:maxWidth="50dp"
                 android:onClick="onToggleEdit"
                 app:srcCompat="@android:drawable/ic_menu_edit" />
@@ -47,13 +50,14 @@
                 android:textSize="24sp" />
 
             <Spinner
+                android:layout_column="2"
                 android:id="@+id/sos_spinner"
-                android:layout_width="100dp"
+                android:layout_width="130dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="0dp"
                 android:layout_marginTop="15dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:paddingTop="17dp"
+                android:layout_marginRight="20dp"
+                 />
         </TableRow>
 
         <TableRow>
@@ -69,6 +73,7 @@
                 android:hint="Emergency Contact Number"
                 android:inputType="phone"
                 android:padding="10dip"
+                android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/include" />
@@ -90,12 +95,11 @@
 
             <Spinner
                 android:id="@+id/toggle_music_spinner"
-                android:layout_width="100dp"
+                android:layout_width="130dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="0dp"
-                android:layout_marginTop="15dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="5dp"
+                android:paddingTop="17dp"
+                android:layout_marginRight="20dp"
 
                 />
         </TableRow>
@@ -111,12 +115,11 @@
 
             <Spinner
                 android:id="@+id/play_next_spinner"
-                android:layout_width="100dp"
+                android:layout_width="130dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="0dp"
-                android:layout_marginTop="15dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_marginTop="5dp"
+                android:paddingTop="17dp"
+                android:layout_marginRight="20dp" />
         </TableRow>
 
         <TableRow>
@@ -130,12 +133,11 @@
 
             <Spinner
                 android:id="@+id/play_prev_spinner"
-                android:layout_width="100dp"
+                android:layout_width="130dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="0dp"
-                android:layout_marginTop="15dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_marginTop="5dp"
+                android:paddingTop="17dp"
+                android:layout_marginRight="20dp" />
         </TableRow>
 
         <View
@@ -153,12 +155,12 @@
 
             <Spinner
                 android:id="@+id/find_phone_spinner"
-                android:layout_width="100dp"
+                android:layout_width="130dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="0dp"
-                android:layout_marginTop="15dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_marginTop="5dp"
+                android:paddingTop="17dp"
+                android:layout_marginRight="20dp"
+               />
         </TableRow>
     </TableLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

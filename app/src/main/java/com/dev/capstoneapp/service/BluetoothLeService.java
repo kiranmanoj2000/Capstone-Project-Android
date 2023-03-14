@@ -19,6 +19,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Binder;
 import android.os.Build;
@@ -63,10 +64,11 @@ public class BluetoothLeService extends Service {
    public static final UUID RX_CHAR_UUID = UUID.fromString("d973f2e2-b19e-11e2-9e96-0800200c9a66");
 //   public static final UUID TX_CHAR_UUID = UUID.fromString("00002a05-0000-1000-8000-00805f9b34fb");
 
-   private static final String SINGLE_TAP = "tapleft";
-   private static final String DOUBLE_TAP = "doubleleft";
-   private static final String TRIPLE_TAP = "trplleft";
-   private static final String LONG_PRESS = "longleft";
+   public static final String SINGLE_TAP = "tapleft";
+   public static final String DOUBLE_TAP = "doubleleft";
+   public static final String TRIPLE_TAP = "trplleft";
+   public static final String LONG_PRESS = "longleft";
+   public static final String DOUBLE_TAP_AND_LONG_PRESS = "doubleleft+longleft";
 
 
    private Binder binder = new LocalBinder();
@@ -91,7 +93,7 @@ public class BluetoothLeService extends Service {
    private BroadcastReceiver notificationNotifyReceiver;
    private Handler handler;
    private boolean started = false;
-
+   private SharedPreferences sharedPref;
    @Nullable
    @Override
    public IBinder onBind(Intent intent) {
@@ -120,6 +122,8 @@ public class BluetoothLeService extends Service {
 
 
       context = this;
+      sharedPref = context.getSharedPreferences("com.dev.capstoneapp", Context.MODE_PRIVATE);
+
       findMyPhoneAction = new FindMyPhoneAction(this);
       musicControlsAction = new MusicControlsAction(this);
 
@@ -343,16 +347,7 @@ public class BluetoothLeService extends Service {
       descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
       bluetoothGatt.writeDescriptor(descriptor);
 
-      return;
    }
-
-//   public List<BluetoothGattService> getSupportedGattServices () {
-//      if (bluetoothGatt == null) return null;
-//      List<BluetoothGattService> services = bluetoothGatt.getServices();
-//
-//      startNotificationListener();
-//      return services;
-//   }
 
    public void startNotificationListener(){
       Intent in = new Intent(NotificationListenerReceiver.ACTION_START_NOTIFICATION_LISTENER);
@@ -394,19 +389,28 @@ public class BluetoothLeService extends Service {
       bluetoothGatt.writeCharacteristic(rxChar);
    }
 
-   public void actionHandler(String action) throws IOException {
-      if(action.equals("")){
-         return;
-      }
-
-      switch (action){
-         case LONG_PRESS:
+   public void executeAction(String input) throws IOException {
+      String feature = sharedPref.getString(sharedPref.getString(input, ""), "");
+      switch (feature){
+         case "sos":{
             new SOSMessageAction(BluetoothLeService.this.getApplicationContext());
             break;
-         case SINGLE_TAP:
+         }
+         case "toggleMusic": {
             musicControlsAction.togglePause();
             break;
-         case DOUBLE_TAP:
+         }
+         case "playNext": {
+            musicControlsAction.playNext();
+            break;
+         }
+
+         case "playPrev": {
+            musicControlsAction.playPrevious();
+            break;
+         }
+
+         case "findMy": {
             if (findMyPhoneAction.isPlayingTone()){
                findMyPhoneAction.stopTone();
             } else {
@@ -418,19 +422,16 @@ public class BluetoothLeService extends Service {
                         findMyPhoneAction.stopTone();
                      }
                   }
-               }, 6000);
+               }, 10000);
             }
-            //musicControlsAction.playNext();
-            break;
-         case TRIPLE_TAP:
-            if (findMyPhoneAction.isPlayingTone()){
-               findMyPhoneAction.stopTone();
-            } else {
-               findMyPhoneAction.startTone();
-            }
-            break;
-         default:
-            break;
+         }
       }
+   }
+
+   public void actionHandler(String input) throws IOException {
+      if(input.equals("")){
+         return;
+      }
+      executeAction(input);
    }
 }

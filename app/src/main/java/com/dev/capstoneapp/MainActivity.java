@@ -26,20 +26,29 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dev.capstoneapp.action.FindMyPhoneAction;
 import com.dev.capstoneapp.action.MusicControlsAction;
 import com.dev.capstoneapp.action.SOSMessageAction;
+import com.dev.capstoneapp.adapter.InputMethodAdapter;
+import com.dev.capstoneapp.models.InputMethod;
 import com.dev.capstoneapp.service.BluetoothLeService;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -79,6 +88,11 @@ public class MainActivity extends AppCompatActivity {
     private boolean isEditing = false;
     private TableLayout table;
 
+    public ArrayList<InputMethod>  inputMethods = new ArrayList<>();
+    public ArrayList<Spinner>  spinners = new ArrayList<>();
+
+
+
     private BroadcastReceiver gattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -111,16 +125,34 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
+
+        sharedPref = this.getSharedPreferences("com.dev.capstoneapp", Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
+
+        inputMethods.add(new InputMethod("Single tap", BluetoothLeService.SINGLE_TAP));
+        inputMethods.add(new InputMethod("Double tap", BluetoothLeService.DOUBLE_TAP));
+        inputMethods.add(new InputMethod("Triple tap", BluetoothLeService.TRIPLE_TAP));
+        inputMethods.add(new InputMethod("Long press", BluetoothLeService.LONG_PRESS));
+        inputMethods.add(new InputMethod("Double tap + Long press", BluetoothLeService.DOUBLE_TAP_AND_LONG_PRESS));
+
+        // set default pos of each spinner in sharedPref the if not already saved
+        initDefaultInputMappingSharedPref();
+
+
+
 
         statusTextView = (TextView)findViewById(R.id.statusTextView);
         statusTextView.setText(connectionStatus);
         thresholdValueBox = (EditText)findViewById(R.id.thresholdValueBox);
 
         View featureList = findViewById(R.id.featureList);
+
         sosSpinner = (Spinner) featureList.findViewById(R.id.sos_spinner);
         toggleMusicSpinner = (Spinner) featureList.findViewById(R.id.toggle_music_spinner);
         playNextSpinner = (Spinner) featureList.findViewById(R.id.play_next_spinner);
@@ -128,13 +160,126 @@ public class MainActivity extends AppCompatActivity {
         findMySpinner = (Spinner) featureList.findViewById(R.id.find_phone_spinner);
         setDropDownStatus(false);
 
+        InputMethodAdapter sosAdapter = new InputMethodAdapter(MainActivity.this, inputMethods);
+        InputMethodAdapter toggleMusicAdapter = new InputMethodAdapter(MainActivity.this, inputMethods);
+        InputMethodAdapter playNextAdapter = new InputMethodAdapter(MainActivity.this, inputMethods);
+        InputMethodAdapter playPrevAdapter = new InputMethodAdapter(MainActivity.this, inputMethods);
+        InputMethodAdapter findMyAdapter = new InputMethodAdapter(MainActivity.this, inputMethods);
+
+        sosSpinner.setAdapter(sosAdapter);
+        // get it from local storage
+
+        sosSpinner.setSelection(4);
+
+        toggleMusicSpinner.setAdapter(toggleMusicAdapter);
+        toggleMusicSpinner.setSelection(0);
+
+        playNextSpinner.setAdapter(playNextAdapter);
+        playNextSpinner.setSelection(1);
+
+        playPrevSpinner.setAdapter(playPrevAdapter);
+        playPrevSpinner.setSelection(2);
+
+        findMySpinner.setAdapter(findMyAdapter);
+        findMySpinner.setSelection(3);
+
+
+
+        spinners.add(sosSpinner);
+        spinners.add(toggleMusicSpinner);
+        spinners.add(playNextSpinner);
+        spinners.add(playPrevSpinner);
+        spinners.add(findMySpinner);
+
+        setSpinnerDefaultSelection(sosSpinner, "sos");
+        setSpinnerDefaultSelection(toggleMusicSpinner, "toggleMusic");
+        setSpinnerDefaultSelection(playNextSpinner, "playNext");
+        setSpinnerDefaultSelection(playPrevSpinner, "playPrev");
+        setSpinnerDefaultSelection(findMySpinner, "findMy");
+
+
+        sosSpinner.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent,
+                                               View view, int position, long id)
+                    {
+
+                        handleFeatureInputMethodUpdate("sos", (InputMethod)
+                                parent.getItemAtPosition(position), position);
+                    }
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent)
+                    {
+                    }
+                });
+        toggleMusicSpinner.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent,
+                                               View view, int position, long id)
+                    {
+
+                        handleFeatureInputMethodUpdate("toggleMusic", (InputMethod)
+                                parent.getItemAtPosition(position), position);
+                    }
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent)
+                    {
+                    }
+                });
+        playNextSpinner.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent,
+                                               View view, int position, long id)
+                    {
+
+                        handleFeatureInputMethodUpdate("playNext", (InputMethod)
+                                parent.getItemAtPosition(position), position);
+                    }
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent)
+                    {
+                    }
+                });
+        playPrevSpinner.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent,
+                                               View view, int position, long id)
+                    {
+
+                        handleFeatureInputMethodUpdate("playPrev", (InputMethod)
+                                parent.getItemAtPosition(position), position);
+                    }
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent)
+                    {
+                    }
+                });
+        findMySpinner.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent,
+                                               View view, int position, long id)
+                    {
+
+                        handleFeatureInputMethodUpdate("findMy", (InputMethod)
+                                parent.getItemAtPosition(position), position);
+                    }
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent)
+                    {
+                    }
+                });
+
         table = (TableLayout) featureList.findViewById(R.id.tableLayout);
 
-
+        thresholdValueBox.setVisibility(View.INVISIBLE);
         connectButton = (Button) findViewById(R.id.connectButton);
 
-        sharedPref = this.getSharedPreferences("com.dev.capstoneapp", Context.MODE_PRIVATE);
-        editor = sharedPref.edit();
+
         editEmergencyContactNumberInput = (EditText) findViewById(R.id.editTextPhone);
         emergencyContactNumber = sharedPref.getString("emergencyContactNumber", "");
         if(!emergencyContactNumber.equals("")){
@@ -146,6 +291,7 @@ public class MainActivity extends AppCompatActivity {
             thresholdValueBox.setText(String.valueOf(userThreshVal));
         }
 
+        editEmergencyContactNumberInput.setEnabled(false);
         editEmergencyContactNumberInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -160,9 +306,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 editor.putString("emergencyContactNumber", editEmergencyContactNumberInput.getText().toString());
-                editor.apply();
+                //editor.apply();
             }
         });
+
 
         thresholdValueBox.addTextChangedListener(new TextWatcher() {
             @Override
@@ -208,11 +355,47 @@ public class MainActivity extends AppCompatActivity {
 
         scanLeDevice();
 
-        // REMOVE LATER
-//        Intent in = new Intent(NotificationListenerReceiver.ACTION_START_NOTIFICATION_LISTENER);
-//        in.setComponent(new ComponentName(getApplicationContext(), NotificationListenerReceiver.class));
-//        sendBroadcast(in);
+    }
 
+    public void initDefaultInputMappingSharedPref(){
+        boolean notInitialized = sharedPref.getInt("sos", -1) == -1;
+        if(notInitialized){
+            editor.putInt("sos", 4);
+            editor.putString(inputMethods.get(4).getKey(), "sos");
+            editor.putInt("toggleMusic", 0);
+            editor.putString(inputMethods.get(0).getKey(), "toggleMusic");
+
+            editor.putInt("playNext", 1);
+            editor.putString(inputMethods.get(1).getKey(), "playNext");
+
+            editor.putInt("playPrev", 2);
+            editor.putString(inputMethods.get(2).getKey(), "playPrev");
+
+            editor.putInt("findMy", 3);
+            editor.putString(inputMethods.get(3).getKey(), "findMy");
+
+            editor.commit();
+        }
+    }
+
+    public void setSpinnerDefaultSelection(Spinner spinner, String feature){
+        spinner.setSelection(sharedPref.getInt(feature, 0));
+    }
+
+    public void handleFeatureInputMethodUpdate(String feature, InputMethod inputMethod, int index){
+        editor.putInt(feature, index);
+        editor.putString(inputMethod.getKey(), feature);
+    }
+
+    public boolean areInputAssignmentsValid(){
+        Set<Integer> set = new HashSet<>();
+        for(Spinner s : spinners){
+            if(set.contains(s.getSelectedItemPosition())){
+                return false;
+            }
+            set.add(s.getSelectedItemPosition());
+        }
+        return true;
     }
 
 
@@ -293,16 +476,32 @@ public class MainActivity extends AppCompatActivity {
         connectButton.setEnabled(false);
     }
 
-    public void onToggleEdit(View view){
-        if(isEditing){
-            setDropDownStatus(false);
-            table.setBackgroundColor(Color.parseColor("#303030"));
-        }else{
+    public void onToggleEdit(View view) {
+        if (isEditing) {
+            if (areInputAssignmentsValid()) {
+                editor.apply();
+                editEmergencyContactNumberInput.setEnabled(false);
+                setDropDownStatus(false);
+                table.setBackgroundColor(Color.parseColor("#303030"));
+                isEditing = !isEditing;
+                Toast.makeText(this.getApplicationContext(), "Saved!", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            Toast.makeText(this.getApplicationContext(), "An input can only be mapped to exactly one feature", Toast.LENGTH_LONG).show();
+            table.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce_interpolator));
+
+        }
+        else{
             table.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce_interpolator));
             table.setBackgroundColor(getResources().getColor(R.color.purple_700));
             setDropDownStatus(true);
+            editEmergencyContactNumberInput.setEnabled(true);
+
+
+            isEditing = !isEditing;
         }
-        isEditing = !isEditing;
+
     }
 
     public void setDropDownStatus(boolean isEnabled){
