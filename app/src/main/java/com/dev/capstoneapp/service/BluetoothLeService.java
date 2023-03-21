@@ -68,7 +68,7 @@ public class BluetoothLeService extends Service {
    public static final String DOUBLE_TAP = "doubleleft";
    public static final String TRIPLE_TAP = "trplleft";
    public static final String LONG_PRESS = "longleft";
-   public static final String DOUBLE_TAP_AND_LONG_PRESS = "doubleleft+longleft";
+   public static final String DOUBLE_TAP_AND_LONG_PRESS = DOUBLE_TAP + "+" + LONG_PRESS;
 
 
    private Binder binder = new LocalBinder();
@@ -390,7 +390,7 @@ public class BluetoothLeService extends Service {
    }
 
    public void executeAction(String input) throws IOException {
-      String feature = sharedPref.getString(sharedPref.getString(input, ""), "");
+      String feature = sharedPref.getString(input, "");
       switch (feature){
          case "sos":{
             new SOSMessageAction(BluetoothLeService.this.getApplicationContext());

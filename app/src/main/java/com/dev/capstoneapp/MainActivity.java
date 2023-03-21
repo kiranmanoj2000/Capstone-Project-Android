@@ -198,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
         setSpinnerDefaultSelection(findMySpinner, "findMy");
 
 
+
         sosSpinner.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
                     @Override
@@ -479,7 +480,7 @@ public class MainActivity extends AppCompatActivity {
     public void onToggleEdit(View view) {
         if (isEditing) {
             if (areInputAssignmentsValid()) {
-                editor.apply();
+                editor.commit();
                 editEmergencyContactNumberInput.setEnabled(false);
                 setDropDownStatus(false);
                 table.setBackgroundColor(Color.parseColor("#303030"));
